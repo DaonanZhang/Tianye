@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tianye Map Playground</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css" rel="stylesheet">
+    <link href="{% static 'maps/playground.css' %}" rel="stylesheet">
+</head>
+<body>
+    <main class="app-shell">
+        <section class="map-shell">
+            <div id="map"></div>
+            <div class="map-overlay">
+                <header class="topbar">
+                    <div class="brand-block">
+                        <p class="eyebrow">Offline Trail Demo</p>
+                        <h1>Tianye Trails</h1>
+                    </div>
+                    <div class="pill-row">
+                        <span class="info-pill">北京本地地图</span>
+                        <span class="info-pill info-pill-warm">离线徒步</span>
+                    </div>
+                </header>
+
+                <section class="hero-card">
+                    <div class="hero-copy">
+                        <p class="eyebrow">轻徒步模式</p>
+                        <h2>不只告诉你往哪走，还提醒你出发前该带什么。</h2>
+                        <p id="route-status" class="status-copy">
+                            点击地图选择起点和终点。系统会把两个点吸附到最近可步行道路，然后返回一条贴路路线。
+                        </p>
+                    </div>
+                    <div class="hero-tags">
+                        <span class="hero-tag">当前位置持续定位</span>
+                        <span class="hero-tag">已走/剩余本地计算</span>
+                        <span class="hero-tag">恢复联网再同步</span>
+                    </div>
+                </section>
+            </div>
+
+            <section class="bottom-sheet">
+                <div class="bottom-sheet-handle"></div>
+
+                <div class="sheet-grid">
+                    <section class="card card-primary">
+                        <div class="card-head">
+                            <div>
+                                <p class="eyebrow">Live Hike</p>
+                                <h2>当前徒步</h2>
+                            </div>
+                            <button id="center-on-user" class="icon-button" type="button" aria-label="定位到我">⌖</button>
+                        </div>
+
+                        <dl class="metric-strip">
+                            <div class="metric-chip">
+                                <dt>已走</dt>
+                                <dd id="walked-distance">0 m</dd>
+                            </div>
+                            <div class="metric-chip">
+                                <dt>剩余</dt>
+                                <dd id="remaining-distance">未选择路径</dd>
+                            </div>
+                            <div class="metric-chip">
+                                <dt>海拔</dt>
+                                <dd id="current-altitude">未知</dd>
+                            </div>
+                            <div class="metric-chip metric-chip-wide">
+                                <dt>当前位置</dt>
+                                <dd id="current-location">未获取</dd>
+                            </div>
+                        </dl>
+
+                        <div class="action-row">
+                            <button id="start-tracking" class="action-button" type="button">开始定位</button>
+                            <button id="stop-tracking" class="action-button action-button-secondary" type="button" disabled>停止定位</button>
+                        </div>
+                        <div class="action-row action-row-split">
+                            <button id="use-current-location" class="action-button action-button-ghost" type="button">当前位置设为起点</button>
+                            <button id="start-hike" class="action-button action-button-warm" type="button">开始徒步</button>
+                            <button id="stop-hike" class="action-button action-button-secondary" type="button" disabled>结束徒步</button>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-head">
+                            <div>
+                                <p class="eyebrow">Light Hiking</p>
+                                <h2>出发前确认</h2>
+                            </div>
+                        </div>
+                        <p class="status-copy">
+                            第一阶段的产品重点不是极限穿越，而是帮助用户在城市边缘、公园步道、半日轻徒步里更安心地出发。
+                        </p>
+                        <div class="knowledge-grid">
+                            <article class="knowledge-item">
+                                <h3>建议装备</h3>
+                                <p>水、充电宝、轻薄外套、头灯、备用食物。</p>
+                            </article>
+                            <article class="knowledge-item">
+                                <h3>环境提醒</h3>
+                                <p>先看距离、爬升、天色和返程时间，再决定是否开始。</p>
+                            </article>
+                        </div>
+                        <div class="equipment-strip">
+                            <span class="equipment-chip equipment-chip-active">登山鞋</span>
+                            <span class="equipment-chip equipment-chip-active">500ml 水</span>
+                            <span class="equipment-chip">头灯</span>
+                            <span class="equipment-chip">雨衣</span>
+                            <span class="equipment-chip">徒步杖</span>
+                            <span class="equipment-chip">急救包</span>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-head">
+                            <div>
+                                <p class="eyebrow">Saved Trails</p>
+                                <h2>本地路径库</h2>
+                            </div>
+                        </div>
+                        <p id="gpx-status" class="status-copy">
+                            上传 GPX 后，系统会把轨迹规范化成项目路径；如果它与旧路始终在 1 米内，就归并到旧路，否则保存为新的本地导航路径。
+                        </p>
+                        <div class="action-row">
+                            <input id="gpx-file" class="file-input" type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml">
+                            <button id="upload-gpx" class="action-button" type="button">导入 GPX</button>
+                        </div>
+                        <p id="local-navigation-status" class="status-copy status-copy-compact">
+                            选中一条已保存路径后，它会成为当前本地导航路径。后续已走/剩余距离计算都在手机本地完成。
+                        </p>
+                        <div id="saved-paths-summary" class="session-list session-list-compact"></div>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-head">
+                            <div>
+                                <p class="eyebrow">Session Log</p>
+                                <h2>最近徒步</h2>
+                            </div>
+                        </div>
+                        <p id="hike-session-status" class="status-copy">
+                            暂无记录。开始并结束一次徒步后，这里会显示最近保存的会话。
+                        </p>
+                        <div id="recent-hikes" class="session-list"></div>
+                    </section>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
+    <script src="{% static 'maps/playground.js' %}"></script>
+</body>
+</html>

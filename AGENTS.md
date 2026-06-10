@@ -1,0 +1,117 @@
+# AGENTS.md
+
+## Project Working Rules
+
+This project prioritizes building a durable local map data pipeline rather than relying on repeated one-off online lookups.
+
+### 1. Data acquisition priority
+
+When a new map feature requires external data, the preferred execution order is:
+
+1. Find an authoritative or stable data source that can be downloaded, exported, or bulk-collected.
+2. Bring that data into the local project in a reusable form.
+3. Convert it into a format that can be rendered or queried locally.
+4. Document the acquisition and processing workflow in Markdown.
+5. Only fall back to temporary online-only querying when no practical local data path exists.
+
+This means the default goal is not “look it up again every time”, but “find a source once, ingest it properly, and reuse it locally”.
+
+### 2. Offline-first map data workflow
+
+For map-related features such as scenic spots, landmarks, trailheads, parks, route metadata, or POI overlays:
+
+- Prefer downloadable datasets, official exports, OpenStreetMap-derived extracts, or stable structured APIs that can be persisted locally.
+- Save the raw or normalized data into the repository data workflow when practical.
+- If the dataset is too large for direct commit, save the processing scripts, output paths, and regeneration steps in project docs.
+- Any frontend display layer should be backed by local files, local services, or project-owned derived data whenever feasible.
+
+### 3. Documentation requirement
+
+Each meaningful data ingestion or map-processing step should be recorded in Markdown, including:
+
+- source of truth
+- download location
+- local storage path
+- transformation script
+- generated artifacts
+- how the frontend or backend uses the result
+
+The project should accumulate a repeatable map-processing workflow, not a sequence of undocumented manual steps.
+
+### 4. Online research rule
+
+If browsing is needed, use it to identify:
+
+- the best available source
+- licensing constraints
+- download method
+- update cadence
+- whether the data can be stored and reused locally
+
+Browsing should support local data ownership. It should not become the final product dependency unless that is explicitly accepted as a temporary exception.
+
+### 5. API dependency rule
+
+Whenever a feature depends on query-time service calls, explicitly label the dependency as one of:
+
+- `local-data`
+- `local-service`
+- `external-api`
+
+For any `external-api`, document:
+
+- what it is used for
+- whether a self-hostable substitute exists
+- whether the project intends to migrate to a local service later
+
+Preferred order for map-related querying is:
+
+1. local data already stored in the project
+2. self-hostable local services such as Nominatim, OSRM, GraphHopper, or similar
+3. online third-party APIs only when no practical local path exists yet
+
+### 6. Product development implication
+
+Dummy data is acceptable only for very early UI scaffolding.
+
+Once a feature direction is confirmed, implementation should move from dummy data to:
+
+- real source discovery
+- local ingestion
+- documented transformation
+- local rendering or querying
+
+This rule applies especially to map overlays such as scenic spots and key landmarks.
+
+### 7. Skill invocation rule
+
+For this repository, do not automatically invoke optional Codex skills unless the user explicitly asks for that specific skill.
+
+Allowed automatic skills:
+
+- `codegraph` and similarly lightweight local code-intelligence or search helpers that primarily save tokens, reduce manual file reading, or speed up navigation without adding meaningful external/tooling cost
+- other low-overhead local helpers only when they are clearly in the same “token-saving / local-inspection” category
+
+Restricted skills:
+
+- any skill that introduces noticeable extra tool usage, external network activity, generation overhead, long workflows, plugin/app dependencies, browser automation, or substantial additional token consumption must not be invoked automatically
+- for those skills, ask first unless the user explicitly names the skill or clearly instructs that it should be used
+
+When in doubt, classify the skill as restricted and ask first.
+
+### 8. Product runtime assumption
+
+This project should be designed mobile-first, with the primary long-term runtime target being:
+
+- iPhone app
+- Android or other mobile device app
+
+The browser playground is only an early development shell, not the final product assumption.
+
+Implications:
+
+- core hiking logic should be portable and should not be tightly coupled to browser-only APIs
+- route progress, walked distance, remaining distance, and GPX-path navigation should be designed so they can run locally on-device with minimal refactoring
+- any browser-only capability should be treated as a temporary adapter layer around portable product logic
+- offline-first behavior is a product requirement, not a later enhancement
+- when choosing data structures, workflows, or storage formats, prefer designs that can later move cleanly into a native or hybrid mobile app architecture

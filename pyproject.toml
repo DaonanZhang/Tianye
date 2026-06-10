@@ -1,0 +1,16 @@
+[project]
+name = "tianye"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=6.0.5",
+    "django-environ>=0.13.0",
+    "djangorestframework>=3.17.1",
+    "imagecodecs>=2025.8.2",
+    "ipython>=9.13.0",
+    "osmium>=4.3.1",
+    "psycopg>=3.3.4",
+    "tifffile>=2024.9.20",
+]
