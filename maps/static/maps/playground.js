@@ -20,6 +20,7 @@ const uploadGpxButton = document.getElementById("upload-gpx");
 const savedPathsSummaryElement = document.getElementById("saved-paths-summary");
 const remainingDistanceElement = document.getElementById("remaining-distance");
 const localNavigationStatusElement = document.getElementById("local-navigation-status");
+const togglePanelsButton = document.getElementById("toggle-panels");
 const selectedPoints = [];
 const emptyLineFeature = {
   type: "Feature",
@@ -187,6 +188,18 @@ function setGpxStatus(message) {
 
 function setLocalNavigationStatus(message) {
   localNavigationStatusElement.textContent = message;
+}
+
+function setPanelsCollapsed(isCollapsed) {
+  document.body.classList.toggle("panels-collapsed", isCollapsed);
+  if (togglePanelsButton) {
+    togglePanelsButton.textContent = isCollapsed ? "展开面板" : "收起面板";
+    togglePanelsButton.setAttribute("aria-expanded", String(!isCollapsed));
+  }
+}
+
+function togglePanels() {
+  setPanelsCollapsed(!document.body.classList.contains("panels-collapsed"));
 }
 
 function formatDistance(meters) {
@@ -1629,6 +1642,7 @@ uploadGpxButton.addEventListener("click", () => {
     setGpxStatus(`GPX 导入失败：${error.message}`);
   });
 });
+togglePanelsButton?.addEventListener("click", togglePanels);
 savedPathsSummaryElement.addEventListener("click", (event) => {
   const button = event.target.closest("[data-path-id]");
   if (!button) {
