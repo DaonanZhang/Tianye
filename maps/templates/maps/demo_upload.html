@@ -1,0 +1,55 @@
+{% extends "maps/demo_base.html" %}
+
+{% block title %}上传 GPX | 北京城市徒步路线 AI Demo{% endblock %}
+
+{% block body %}
+<main class="demo-page upload-page">
+    <section class="detail-topbar">
+        <a class="text-link" href="/">← Back to trails</a>
+        <a class="text-link" href="/routes/olympic-forest-park-loop/">Open featured trail</a>
+    </section>
+
+    <section class="hero hero-detail alltrails-detail-hero">
+        <div>
+            <p class="eyebrow">Plan your route</p>
+            <h1>Import a GPX and preview it like a trail page.</h1>
+            <p class="hero-text">
+                This page keeps the same AllTrails-like outer shell, but the real work stays minimal: parse one GPX, render it, analyze it, and show the route story.
+            </p>
+        </div>
+        <form id="upload-form" class="upload-form">
+            <input id="gpx-file" class="file-field" type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml">
+            <button class="button button-primary" type="submit">Analyze GPX</button>
+        </form>
+    </section>
+
+    <p id="upload-status" class="page-status">Choose one `.gpx` file to preview its trail page.</p>
+
+    <section class="detail-layout">
+        <div class="map-card">
+            <div id="upload-map" class="route-map"></div>
+            <div class="map-footnote">预览轨迹后，会自动缩放到路线范围。</div>
+        </div>
+
+        <aside class="metrics-card">
+            <h2>Trail stats</h2>
+            <dl id="upload-metrics" class="metrics-grid"></dl>
+        </aside>
+    </section>
+
+    <section id="upload-story-panel" class="content-card hidden">
+        <div class="section-head section-head-tight">
+            <div>
+                <p class="eyebrow eyebrow-dark">AI preview</p>
+                <h2>Uploaded trail overview</h2>
+            </div>
+            <button id="upload-copy-share-text" class="button button-ghost" type="button" disabled>Copy share text</button>
+        </div>
+        <div id="upload-story-content" class="story-content"></div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{% static 'maps/demo-upload.js' %}"></script>
+{% endblock %}

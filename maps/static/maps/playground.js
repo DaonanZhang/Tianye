@@ -1603,7 +1603,8 @@ map.on("moveend", async () => {
 });
 
 map.on("click", async (event) => {
-  const interactiveLayers = [...scenicSpotLayers, ...savedPathLayers];
+  const interactiveLayers = [...scenicSpotLayers, ...savedPathLayers]
+    .filter((layerId) => map.getLayer(layerId));
   const renderedFeatures = map.queryRenderedFeatures(event.point, { layers: interactiveLayers });
   if (renderedFeatures.length > 0) {
     return;

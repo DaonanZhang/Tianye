@@ -1,0 +1,63 @@
+{% extends "maps/demo_base.html" %}
+
+{% block body %}
+<main class="demo-page">
+    <section class="hero hero-home alltrails-hero">
+        <div class="hero-copy">
+            <p class="eyebrow">Explore Beijing</p>
+            <h1>Find your next city walk.</h1>
+            <p class="hero-text">
+                外层 UI 参考 AllTrails 的探索体验做高保真 mock；内层只保留最关键的真实能力：打开路线、查看轨迹、开始一次 demo route。
+            </p>
+            <div class="home-filter-row">
+                <span class="filter-pill filter-pill-active">City walking</span>
+                <span class="filter-pill">Kid friendly</span>
+                <span class="filter-pill">Loop routes</span>
+                <span class="filter-pill">Near parks</span>
+            </div>
+            <div class="hero-actions">
+                <a class="button button-primary" href="/routes/olympic-forest-park-loop/">View trail</a>
+                <a class="button button-secondary" href="/upload/">Upload GPX</a>
+            </div>
+        </div>
+        <aside class="hero-panel hero-map-preview">
+            <p class="panel-label">Featured trail</p>
+            <div class="hero-map-preview-art"></div>
+            <div class="hero-map-preview-meta">
+                <strong>Olympic Forest Park Loop</strong>
+                <span>4.9 ★ · Easy · Local data</span>
+            </div>
+        </aside>
+    </section>
+
+    <section class="section-head">
+        <div>
+            <p class="eyebrow eyebrow-dark">Top trails</p>
+            <h2>Popular routes around Beijing</h2>
+        </div>
+        <a class="text-link" href="/upload/">Upload your own route</a>
+    </section>
+
+    <section class="route-grid">
+        {% for route in routes %}
+            <article class="route-card route-card-alltrails">
+                <div class="route-cover route-cover-{{ route.cover_variant }}">
+                    <span class="route-save-pill">+ Save</span>
+                </div>
+                <div class="route-card-top">
+                    <p class="route-city">{{ route.city }} · {{ route.route_type }}</p>
+                    <h3>{{ route.name }}</h3>
+                    <p class="route-rating">{{ route.rating }} ★ <span>({{ route.review_count }})</span></p>
+                    <p class="route-description">{{ route.description }}</p>
+                </div>
+                <div class="tag-row">
+                    {% for tag in route.tags %}
+                        <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                <a class="route-link" href="{{ route.detail_url }}">See details</a>
+            </article>
+        {% endfor %}
+    </section>
+</main>
+{% endblock %}

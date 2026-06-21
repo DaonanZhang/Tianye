@@ -115,3 +115,35 @@ Implications:
 - any browser-only capability should be treated as a temporary adapter layer around portable product logic
 - offline-first behavior is a product requirement, not a later enhancement
 - when choosing data structures, workflows, or storage formats, prefer designs that can later move cleanly into a native or hybrid mobile app architecture
+
+### 9. Current product priority: first demo
+
+The current highest-priority deliverable is the first end-to-end demo described in:
+
+- `docs/beijing-city-walk-ai-demo-plan.md`
+
+That document is the active implementation brief for the next phase of work.
+
+Current execution priority:
+
+1. Build a showable demo before expanding scope.
+2. Optimize for a clear 3-5 minute product walkthrough.
+3. Prove the core loop: GPX route data can be parsed, rendered, analyzed, and turned into shareable AI-style route content.
+
+Until this demo loop works, avoid expanding into full product features such as:
+
+- accounts
+- social systems
+- backend persistence that is not required for the demo
+- complex recommendation systems
+- production-grade commercialization features
+- native app packaging
+
+Implementation direction for the current phase:
+
+- Prefer a web demo shell if that is the fastest path inside the current repo.
+- Keep GPX parsing, route analysis, and AI-style text generation as independent helper modules.
+- Use mock or rule-based AI generation by default unless the user explicitly requests real LLM integration.
+- Treat upload, local parsing, route visualization, and route-card generation as P0 demo capabilities.
+
+If there is a tradeoff between polish breadth and completing the demo loop, complete the demo loop first.

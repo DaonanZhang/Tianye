@@ -1,6 +1,8 @@
 import json
+from pathlib import Path
 
 from django.core.exceptions import ValidationError
+from django.http import Http404
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.utils import timezone
@@ -10,6 +12,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .elevation import sample_elevation
 from .elevation import summarize_route_elevation
+from .demo import build_demo_route_payload, parse_demo_gpx
+from .demo_catalog import get_demo_route_definition, list_demo_routes, load_demo_route_payload
 from .gpx import bidirectional_polyline_distance_meters, parse_gpx_text
 from .hiking_time import estimate_dav_hiking_time
 from .models import HikeSession, SavedPath, ScenicSpot
@@ -17,8 +21,91 @@ from .routing import get_route_graph, in_bounds
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
+class DemoHomeView(TemplateView):
+    template_name = "maps/demo_home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        routes = list_demo_routes()
+        for route in routes:
+            route["detail_url"] = f"/routes/{route['id']}/"
+        context["routes"] = routes
+        return context
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class DemoRouteDetailView(TemplateView):
+    template_name = "maps/demo_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        route_id = kwargs["route_id"]
+        definition = get_demo_route_definition(route_id)
+        if definition is None:
+            raise Http404("Demo route not found.")
+        context["route_id"] = route_id
+        context["route_name"] = definition["name"]
+        return context
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class DemoUploadView(TemplateView):
+    template_name = "maps/demo_upload.html"
+
+
+class DemoRouteDataView(View):
+    def get(self, request, route_id, *args, **kwargs):
+        try:
+            payload = load_demo_route_payload(route_id)
+        except KeyError:
+            return JsonResponse({"error": "Route not found."}, status=404)
+        return JsonResponse(payload)
+
+
+class DemoUploadPreviewView(View):
+    def post(self, request, *args, **kwargs):
+        uploaded_file = request.FILES.get("gpx_file")
+        if uploaded_file is None:
+            return JsonResponse({"error": "Missing GPX file."}, status=400)
+
+        filename = Path(uploaded_file.name).name
+        if not filename.lower().endswith(".gpx"):
+            return JsonResponse({"error": "Please upload a .gpx file."}, status=400)
+
+        try:
+            xml_text = uploaded_file.read().decode("utf-8")
+        except UnicodeDecodeError:
+            return JsonResponse({"error": "GPX file must be UTF-8 decodable."}, status=400)
+
+        if not xml_text.strip():
+            return JsonResponse({"error": "Uploaded GPX file is empty."}, status=400)
+
+        try:
+            parsed = parse_demo_gpx(xml_text, fallback_name=filename.rsplit(".", 1)[0])
+        except (ValueError, ValidationError) as exc:
+            return JsonResponse({"error": str(exc)}, status=422)
+
+        payload = build_demo_route_payload(
+            route_id="uploaded-route",
+            parsed_gpx=parsed,
+            city="北京",
+            title=parsed.name,
+            description="这是一次由用户本地上传的 GPX 预览结果，当前只做分析与展示，不写入数据库。",
+            tags=["用户上传", "GPX 预览"],
+            dependency="local-file",
+        )
+        return JsonResponse(payload)
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
 class MapPlaygroundView(TemplateView):
     template_name = "maps/playground.html"
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class CsrfCookieView(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({"ok": True})
 
 
 class RoutePreviewView(View):
@@ -135,6 +222,11 @@ class HikeSessionStartView(View):
             planned_moving_minutes=int(properties.get("estimated_time", {}).get("moving_minutes", 0)),
             planned_recommended_minutes=int(properties.get("estimated_time", {}).get("recommended_minutes", 0)),
             route_metadata={
+                "route_id": properties.get("route_id"),
+                "route_name": properties.get("name"),
+                "dependency": properties.get("dependency"),
+                "difficulty": properties.get("difficulty"),
+                "source": properties.get("source"),
                 "start_anchor": properties.get("start_anchor"),
                 "end_anchor": properties.get("end_anchor"),
                 "elevation_source": properties.get("elevation_source"),
@@ -208,13 +300,27 @@ class HikeSessionFinishView(View):
 
 class HikeSessionListView(View):
     def get(self, request, *args, **kwargs):
-        sessions = HikeSession.objects.all()[:10]
+        queryset = HikeSession.objects.all()
+
+        route_id = request.GET.get("route_id")
+        if route_id:
+            queryset = queryset.filter(route_metadata__route_id=route_id)
+
+        status = request.GET.get("status")
+        if status in {HikeSession.STATUS_ACTIVE, HikeSession.STATUS_COMPLETED}:
+            queryset = queryset.filter(status=status)
+
+        sessions = queryset[:10]
         return JsonResponse(
             {
                 "sessions": [
                     {
                         "id": session.id,
                         "status": session.status,
+                        "route_id": session.route_metadata.get("route_id"),
+                        "route_name": session.route_metadata.get("route_name"),
+                        "dependency": session.route_metadata.get("dependency"),
+                        "difficulty": session.route_metadata.get("difficulty"),
                         "started_at": session.started_at.isoformat(),
                         "ended_at": session.ended_at.isoformat() if session.ended_at else None,
                         "planned_distance_meters": round(session.planned_distance_meters, 1),

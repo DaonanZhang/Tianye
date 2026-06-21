@@ -1,6 +1,12 @@
 from django.urls import path
 
 from .views import (
+    CsrfCookieView,
+    DemoHomeView,
+    DemoRouteDataView,
+    DemoRouteDetailView,
+    DemoUploadPreviewView,
+    DemoUploadView,
     ElevationLookupView,
     GpxImportView,
     HikeSessionFinishView,
@@ -16,7 +22,13 @@ from .views import (
 app_name = "maps"
 
 urlpatterns = [
-    path("", MapPlaygroundView.as_view(), name="playground"),
+    path("", DemoHomeView.as_view(), name="demo-home"),
+    path("routes/<slug:route_id>/", DemoRouteDetailView.as_view(), name="demo-route-detail"),
+    path("upload/", DemoUploadView.as_view(), name="demo-upload"),
+    path("playground/", MapPlaygroundView.as_view(), name="playground"),
+    path("api/csrf/", CsrfCookieView.as_view(), name="csrf-cookie"),
+    path("api/demo-routes/<slug:route_id>/", DemoRouteDataView.as_view(), name="demo-route-data"),
+    path("api/demo-upload-preview/", DemoUploadPreviewView.as_view(), name="demo-upload-preview"),
     path("api/route-preview/", RoutePreviewView.as_view(), name="route-preview"),
     path("api/elevation/", ElevationLookupView.as_view(), name="elevation"),
     path("api/gpx-import/", GpxImportView.as_view(), name="gpx-import"),

@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}北京城市徒步路线 AI Demo{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css" rel="stylesheet">
+    <link href="{% static 'maps/demo.css' %}" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}demo-body{% endblock %}">
+    <header class="site-header">
+        <div class="site-header-inner">
+            <a class="site-brand" href="/">
+                <span class="site-brand-mark">T</span>
+                <span class="site-brand-copy">
+                    <strong>Tianye</strong>
+                    <span>Trails demo</span>
+                </span>
+            </a>
+            <div class="site-search" aria-hidden="true">
+                <span class="site-search-icon">⌕</span>
+                <span>Search Beijing routes, parks, landmarks</span>
+            </div>
+            <nav class="site-nav">
+                <a href="/">Explore</a>
+                <a href="/upload/">Plan</a>
+                <a href="/playground/">Navigate</a>
+            </nav>
+        </div>
+    </header>
+    {% block body %}{% endblock %}
+    <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
