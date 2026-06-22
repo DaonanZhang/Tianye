@@ -1,0 +1,58 @@
+<svg width="1200" height="340" viewBox="0 0 1200 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1200" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCF7EE"/>
+      <stop offset="1" stop-color="#F3ECE0"/>
+    </linearGradient>
+    <marker id="arrow2" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M1 1L11 7L1 13" stroke="#8C4F2B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="340" rx="28" fill="url(#bg2)"/>
+
+  <g>
+    <rect x="48" y="86" width="220" height="120" rx="22" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <rect x="88" y="108" width="140" height="28" rx="14" fill="#F0E2D2"/>
+    <text x="111" y="127" fill="#6B3D21" font-size="15" font-family="JetBrains Mono, monospace">内容平台</text>
+    <text x="98" y="168" fill="#1F2933" font-size="24" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">看到路线</text>
+  </g>
+
+  <g>
+    <rect x="342" y="86" width="220" height="120" rx="22" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <rect x="392" y="108" width="120" height="28" rx="14" fill="#F0E2D2"/>
+    <text x="418" y="127" fill="#6B3D21" font-size="15" font-family="JetBrains Mono, monospace">地图工具</text>
+    <text x="392" y="168" fill="#1F2933" font-size="24" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">补交通入口</text>
+  </g>
+
+  <g>
+    <rect x="636" y="86" width="220" height="120" rx="22" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <rect x="674" y="108" width="144" height="28" rx="14" fill="#F0E2D2"/>
+    <text x="694" y="127" fill="#6B3D21" font-size="15" font-family="JetBrains Mono, monospace">轨迹 / GPX</text>
+    <text x="688" y="168" fill="#1F2933" font-size="24" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">再找轨迹</text>
+  </g>
+
+  <g>
+    <rect x="930" y="86" width="220" height="120" rx="22" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <rect x="972" y="108" width="136" height="28" rx="14" fill="#F0E2D2"/>
+    <text x="996" y="127" fill="#6B3D21" font-size="15" font-family="JetBrains Mono, monospace">用户自己</text>
+    <text x="978" y="168" fill="#1F2933" font-size="24" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">拼接判断</text>
+  </g>
+
+  <path d="M268 146H332" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow2)"/>
+  <path d="M562 146H626" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow2)"/>
+  <path d="M856 146H920" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow2)"/>
+
+  <g opacity="0.96">
+    <circle cx="305" cy="234" r="7" fill="#D26B37"/>
+    <text x="322" y="240" fill="#8C5D1F" font-size="16" font-family="Noto Serif SC, Songti SC, serif">入口不清楚</text>
+
+    <circle cx="575" cy="234" r="7" fill="#D26B37"/>
+    <text x="592" y="240" fill="#8C5D1F" font-size="16" font-family="Noto Serif SC, Songti SC, serif">路线强度难判断</text>
+
+    <circle cx="850" cy="234" r="7" fill="#D26B37"/>
+    <text x="867" y="240" fill="#8C5D1F" font-size="16" font-family="Noto Serif SC, Songti SC, serif">GPX 有门槛</text>
+  </g>
+
+  <rect x="328" y="274" width="544" height="34" rx="17" fill="#8C4F2B"/>
+  <text x="407" y="296" fill="#FFFDF9" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">产品机会：把分散步骤收束成一条连续的路线使用流程</text>
+</svg>

@@ -214,10 +214,12 @@ export default function App() {
   const activeSessionIdRef = useRef(null);
   const activeRouteIdRef = useRef(null);
   const scenicRequestRef = useRef(null);
+  const routeCatalogRef = useRef(new Map());
   const lastElevationFetchAtRef = useRef(0);
   const headingRef = useRef(0);
   const headingSourceRef = useRef("none");
   const orientationCleanupRef = useRef(null);
+  const trackingReadyWaitersRef = useRef([]);
   const fileInputRef = useRef(null);
   const mockRoutes = useMemo(() => getMockRoutes().map(buildRouteRecord), []);
   const initialUserState = useMemo(() => loadDemoUserState(), []);
@@ -541,6 +543,10 @@ export default function App() {
     const [lng, lat] = coordinates;
     currentLocationRef.current = coordinates;
     setHasLocationFix(true);
+    if (trackingReadyWaitersRef.current.length) {
+      trackingReadyWaitersRef.current.forEach(({ resolve }) => resolve(coordinates));
+      trackingReadyWaitersRef.current = [];
+    }
     setCurrentLocationLabel(`${lng.toFixed(5)}, ${lat.toFixed(5)}`);
     ensureUserMarker(coordinates);
     setSourceData("user-location", {
@@ -666,14 +672,25 @@ export default function App() {
     }
   }
 
-  function startTracking() {
+  function startTracking({ pendingStatus = "正在获取定位...", activeStatus = "定位已开始。" } = {}) {
     if (!("geolocation" in navigator)) {
-      setStatus("当前浏览器不支持定位。");
-      return;
+      const error = new Error("当前浏览器不支持定位。");
+      setStatus(error.message);
+      return Promise.reject(error);
     }
+
+    if (watchIdRef.current !== null && hasLocationFix && currentLocationRef.current) {
+      return Promise.resolve(currentLocationRef.current);
+    }
+
+    const readyPromise = new Promise((resolve, reject) => {
+      trackingReadyWaitersRef.current.push({ resolve, reject });
+    });
+
     if (watchIdRef.current !== null) {
-      return;
+      return readyPromise;
     }
+
     ensureDeviceOrientationTracking();
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
@@ -685,7 +702,7 @@ export default function App() {
         }
         updateLivePosition(coordinates);
         appendTrackPoint(coordinates);
-        setStatus("定位已开始。");
+        setStatus(activeStatus);
         if (activeTab === "navigate") {
           mapRef.current?.easeTo({ center: coordinates, duration: 600 });
         }
@@ -695,6 +712,8 @@ export default function App() {
           navigator.geolocation.clearWatch(watchIdRef.current);
           watchIdRef.current = null;
         }
+        trackingReadyWaitersRef.current.forEach(({ reject }) => reject(error));
+        trackingReadyWaitersRef.current = [];
         setIsTracking(false);
         setHasLocationFix(false);
         setStatus(`定位失败：${error.message}`);
@@ -703,17 +722,22 @@ export default function App() {
     );
     watchIdRef.current = watchId;
     setIsTracking(true);
-    setStatus("正在获取定位...");
+    setStatus(pendingStatus);
+    return readyPromise;
   }
 
-  function stopTracking() {
+  function stopTracking({ statusText = "定位已停止。", keepLastFix = true } = {}) {
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
+    trackingReadyWaitersRef.current.forEach(({ reject }) => reject(new Error("定位已停止。")));
+    trackingReadyWaitersRef.current = [];
     setIsTracking(false);
-    setHasLocationFix(false);
-    setStatus("定位已停止。");
+    setHasLocationFix(keepLastFix ? Boolean(currentLocationRef.current) : false);
+    if (statusText) {
+      setStatus(statusText);
+    }
   }
 
   async function startHike() {
@@ -722,21 +746,17 @@ export default function App() {
       setStatus("请先选择一条路线。");
       return;
     }
-    if (!isTracking) {
-      setStatus("开始徒步前请先开启定位。");
-      return;
-    }
-    if (!hasLocationFix || !currentLocationRef.current) {
-      setStatus("开始徒步前请先完成定位授权并获取当前位置。");
-      return;
-    }
     setIsStartingHike(true);
     try {
+      await startTracking({
+        pendingStatus: "开始徒步前正在获取定位...",
+        activeStatus: "定位已开始，准备启动徒步。",
+      });
       await ensureCsrfCookie();
       const payload = await postJson("/api/hike-sessions/start/", { route: routeFeature });
       activeSessionIdRef.current = payload.id;
       setIsHiking(true);
-      setStatus("徒步已开始。");
+      setStatus("徒步已开始，正在持续记录位置。");
       setSessionStatus(`当前会话 #${payload.id}。`);
       setActiveTab("navigate");
       setIsSheetExpanded(false);
@@ -778,6 +798,7 @@ export default function App() {
       });
       activeSessionIdRef.current = null;
       setIsHiking(false);
+      stopTracking({ statusText: null, keepLastFix: true });
       setStatus("徒步会话已完成。");
       await loadRecentHikes();
     } catch (error) {
@@ -816,7 +837,7 @@ export default function App() {
   function centerOnUser() {
     if (!currentLocationRef.current) {
       shouldFitRouteWithUserRef.current = true;
-      startTracking();
+      startTracking().catch(() => {});
       setStatus("正在请求定位。");
       return;
     }
@@ -917,6 +938,7 @@ export default function App() {
         map.addSource("beijing-walkways", { type: "geojson", data: walkways });
         map.addSource("beijing-places", { type: "geojson", data: places });
         map.addSource("scenic-spots", { type: "geojson", data: EMPTY_COLLECTION });
+        map.addSource("discover-routes", { type: "geojson", data: EMPTY_COLLECTION });
         map.addSource("saved-paths", { type: "geojson", data: EMPTY_COLLECTION });
         map.addSource("selected-points", { type: "geojson", data: EMPTY_COLLECTION });
         map.addSource("preview-route", { type: "geojson", data: EMPTY_LINE });
@@ -937,6 +959,24 @@ export default function App() {
             "line-opacity": 0.78,
           },
         });
+        map.addLayer({
+          id: "discover-routes-line",
+          type: "line",
+          source: "discover-routes",
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: {
+            "line-color": "#1a8f43",
+            "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.4, 13, 4.2, 15, 6.2],
+            "line-opacity": 0.72,
+          },
+        });
+        map.addLayer({
+          id: "discover-routes-hit",
+          type: "line",
+          source: "discover-routes",
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: { "line-color": "#000000", "line-width": 20, "line-opacity": 0 },
+        });
         map.addLayer({ id: "saved-paths-line", type: "line", source: "saved-paths", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#63bc71", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1.3, 14, 3.4], "line-opacity": 0.34 } });
         map.addLayer({ id: "saved-paths-hit", type: "line", source: "saved-paths", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#000000", "line-width": 16, "line-opacity": 0 } });
         map.addLayer({ id: "preview-route-glow", type: "line", source: "preview-route", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#89e094", "line-width": 14, "line-opacity": 0.24 } });
@@ -946,6 +986,32 @@ export default function App() {
         map.addLayer({ id: "scenic-spots-circle", type: "circle", source: "scenic-spots", paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 7], "circle-color": ["match", ["get", "category"], "viewpoint", "#f28b3a", "attraction", "#e0564a", "park", "#2b8a57", "#6a735f"], "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" } });
         map.addLayer({ id: "selected-points", type: "circle", source: "selected-points", paint: { "circle-radius": 8, "circle-color": "#fffdf6", "circle-stroke-width": 3, "circle-stroke-color": "#16803c" } });
         map.on("click", handleMapClick);
+        map.on("mouseenter", "discover-routes-hit", () => {
+          map.getCanvas().style.cursor = "pointer";
+        });
+        map.on("mousemove", "discover-routes-hit", (event) => {
+          const feature = event.features?.[0];
+          const routeId = feature?.properties?.route_id;
+          const route = routeCatalogRef.current.get(routeId);
+          if (!feature || !route) {
+            return;
+          }
+          popupRef.current?.setLngLat(event.lngLat).setHTML(
+            `<div class="map-route-popup"><strong>${route.name}</strong><span>${route.location}</span><em>${route.difficulty} · ${formatDistance(route.distanceMeters)} · 点击查看详情</em></div>`,
+          ).addTo(map);
+        });
+        map.on("mouseleave", "discover-routes-hit", () => {
+          map.getCanvas().style.cursor = "";
+          popupRef.current?.remove();
+        });
+        map.on("click", "discover-routes-hit", (event) => {
+          const feature = event.features?.[0];
+          const routeId = feature?.properties?.route_id;
+          const route = routeCatalogRef.current.get(routeId);
+          if (route) {
+            openRouteDetail(route);
+          }
+        });
         map.on("click", "saved-paths-hit", (event) => {
           const feature = event.features?.[0];
           if (feature) {
@@ -1008,6 +1074,17 @@ export default function App() {
   const favoriteRoutes = useMemo(() => allRoutes.filter((route) => favoriteIds.has(route.id)), [allRoutes, favoriteIds]);
   const downloadedRoutes = useMemo(() => allRoutes.filter((route) => downloadedIds.has(route.id)), [allRoutes, downloadedIds]);
   const activeRouteName = routeFeatureRef.current?.properties?.name || "尚未选择路线";
+
+  useEffect(() => {
+    const nextRoutes = allRoutes.map((route) => buildRouteRecord(route));
+    routeCatalogRef.current = new Map(
+      nextRoutes.map((route) => [route.properties?.route_id || route.id, route]),
+    );
+    setSourceData("discover-routes", {
+      type: "FeatureCollection",
+      features: nextRoutes,
+    });
+  }, [allRoutes]);
 
   function handleTabChange(tabId) {
     setActiveTab(tabId);
@@ -1123,8 +1200,7 @@ export default function App() {
               <div><span>当前海拔</span><strong>{currentAltitude}</strong></div>
             </div>
             <div className="navigate-actions">
-              <button className="primary-pill" type="button" onClick={startTracking} disabled={isTracking}><Icon name="location" className="button-icon" /><span>开始定位</span></button>
-              <button className="ghost-action" type="button" onClick={stopTracking} disabled={!isTracking}><Icon name="location" className="button-icon" /><span>停止定位</span></button>
+              <span className="navigate-helper-copy">{isHiking ? "徒步进行中，正在自动持续定位。" : "点击“开始徒步”后会自动开启持续定位。"}</span>
               <button className="ghost-action" type="button" onClick={centerOnUser}><Icon name="map" className="button-icon" /><span>回到我</span></button>
             </div>
             <div className="navigate-actions">
@@ -1132,7 +1208,7 @@ export default function App() {
                 className="primary-pill"
                 type="button"
                 onClick={startHike}
-                disabled={isHiking || isStartingHike || !routeFeatureRef.current || !isTracking || !hasLocationFix}
+                disabled={isHiking || isStartingHike || !routeFeatureRef.current}
               >
                 <Icon name="play" className="button-icon" />
                 <span>{isStartingHike ? "启动中..." : "开始徒步"}</span>

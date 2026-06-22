@@ -1,0 +1,66 @@
+<svg width="1200" height="340" viewBox="0 0 1200 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1200" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCF7EE"/>
+      <stop offset="1" stop-color="#F3ECE0"/>
+    </linearGradient>
+    <marker id="arrow3" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M1 1L11 7L1 13" stroke="#8C4F2B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="340" rx="28" fill="url(#bg3)"/>
+
+  <g>
+    <rect x="42" y="98" width="150" height="110" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="76" y="146" fill="#1F2933" font-size="23" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">路线输入</text>
+  </g>
+  <g>
+    <rect x="230" y="98" width="150" height="110" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="264" y="146" fill="#1F2933" font-size="23" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">轨迹解析</text>
+  </g>
+  <g>
+    <rect x="418" y="98" width="150" height="110" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="452" y="146" fill="#1F2933" font-size="23" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">路线分析</text>
+  </g>
+  <g>
+    <rect x="606" y="98" width="150" height="110" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="640" y="146" fill="#1F2933" font-size="23" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">路线说明</text>
+  </g>
+  <g>
+    <rect x="794" y="98" width="150" height="110" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="828" y="146" fill="#1F2933" font-size="23" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">路线卡片</text>
+  </g>
+  <g>
+    <rect x="982" y="98" width="176" height="110" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="1016" y="146" fill="#1F2933" font-size="23" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">分享沉淀</text>
+  </g>
+
+  <path d="M192 152H220" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow3)"/>
+  <path d="M380 152H408" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow3)"/>
+  <path d="M568 152H596" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow3)"/>
+  <path d="M756 152H784" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow3)"/>
+  <path d="M944 152H972" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow3)"/>
+
+  <g>
+    <circle cx="118" cy="240" r="6" fill="#8C4F2B"/>
+    <text x="132" y="246" fill="#5B6470" font-size="16" font-family="Noto Serif SC, Songti SC, serif">现成路线 / GPX</text>
+
+    <circle cx="306" cy="240" r="6" fill="#8C4F2B"/>
+    <text x="320" y="246" fill="#5B6470" font-size="16" font-family="Noto Serif SC, Songti SC, serif">距离 / 时长 / 海拔</text>
+
+    <circle cx="494" cy="240" r="6" fill="#8C4F2B"/>
+    <text x="508" y="246" fill="#5B6470" font-size="16" font-family="Noto Serif SC, Songti SC, serif">难度 / 亮点 / 注意事项</text>
+
+    <circle cx="682" cy="240" r="6" fill="#8C4F2B"/>
+    <text x="696" y="246" fill="#5B6470" font-size="16" font-family="Noto Serif SC, Songti SC, serif">普通用户可理解</text>
+
+    <circle cx="870" cy="240" r="6" fill="#8C4F2B"/>
+    <text x="884" y="246" fill="#5B6470" font-size="16" font-family="Noto Serif SC, Songti SC, serif">可保存 / 可展示</text>
+
+    <circle cx="1070" cy="240" r="6" fill="#8C4F2B"/>
+    <text x="1084" y="246" fill="#5B6470" font-size="16" font-family="Noto Serif SC, Songti SC, serif">可分享 / 可复走</text>
+  </g>
+
+  <path d="M1070 208C1070 274 118 274 118 208" stroke="#8C4F2B" stroke-width="2.5" stroke-dasharray="8 8"/>
+  <text x="434" y="300" fill="#8C4F2B" font-size="20" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">分享会反向形成新的路线内容与数据沉淀</text>
+</svg>

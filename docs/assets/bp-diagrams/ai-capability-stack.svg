@@ -1,0 +1,85 @@
+<svg width="1200" height="420" viewBox="0 0 1200 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCF7EE"/>
+      <stop offset="1" stop-color="#F2E7DA"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M1 1L11 7L1 13" stroke="#8C4F2B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="420" rx="28" fill="url(#bg)"/>
+
+  <g>
+    <path d="M180 150H300" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M400 150H520" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M620 150H740" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M840 150H960" stroke="#8C4F2B" stroke-width="3" marker-end="url(#arrow)"/>
+  </g>
+
+  <g>
+    <circle cx="140" cy="150" r="38" fill="#FFFDF9" stroke="#8C4F2B" stroke-width="3"/>
+    <text x="123" y="159" fill="#8C4F2B" font-size="24" font-family="JetBrains Mono, monospace" font-weight="700">1</text>
+    <text x="94" y="226" fill="#1F2933" font-size="22" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">路线输入</text>
+  </g>
+
+  <g>
+    <circle cx="360" cy="150" r="38" fill="#FFFDF9" stroke="#8C4F2B" stroke-width="3"/>
+    <text x="343" y="159" fill="#8C4F2B" font-size="24" font-family="JetBrains Mono, monospace" font-weight="700">2</text>
+    <text x="314" y="226" fill="#1F2933" font-size="22" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">路线解析</text>
+  </g>
+
+  <g>
+    <circle cx="580" cy="150" r="38" fill="#FFFDF9" stroke="#8C4F2B" stroke-width="3"/>
+    <text x="563" y="159" fill="#8C4F2B" font-size="24" font-family="JetBrains Mono, monospace" font-weight="700">3</text>
+    <text x="525" y="226" fill="#1F2933" font-size="22" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">判断匹配</text>
+  </g>
+
+  <g>
+    <circle cx="800" cy="150" r="38" fill="#FFFDF9" stroke="#8C4F2B" stroke-width="3"/>
+    <text x="783" y="159" fill="#8C4F2B" font-size="24" font-family="JetBrains Mono, monospace" font-weight="700">4</text>
+    <text x="754" y="226" fill="#1F2933" font-size="22" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">用户结果</text>
+  </g>
+
+  <g>
+    <circle cx="1020" cy="150" r="38" fill="#FFFDF9" stroke="#8C4F2B" stroke-width="3"/>
+    <text x="1003" y="159" fill="#8C4F2B" font-size="24" font-family="JetBrains Mono, monospace" font-weight="700">5</text>
+    <text x="966" y="226" fill="#1F2933" font-size="22" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">沉淀反馈</text>
+  </g>
+
+  <g>
+    <rect x="72" y="272" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="106" y="297" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">去重</text>
+    <rect x="72" y="324" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="89" y="349" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">结构化整理</text>
+  </g>
+
+  <g>
+    <rect x="292" y="272" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="326" y="297" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">异常识别</text>
+    <rect x="292" y="324" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="309" y="349" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">轨迹补全判断</text>
+  </g>
+
+  <g>
+    <rect x="512" y="272" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="546" y="297" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">难度判断</text>
+    <rect x="512" y="324" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="529" y="349" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">个性化匹配</text>
+  </g>
+
+  <g>
+    <rect x="732" y="272" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="766" y="297" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">说明生成</text>
+    <rect x="732" y="324" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="766" y="349" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">路线摘要</text>
+  </g>
+
+  <g>
+    <rect x="952" y="272" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="986" y="297" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">文案生成</text>
+    <rect x="952" y="324" width="136" height="40" rx="20" fill="#FFFDF9" stroke="#D8D2C8" stroke-width="2"/>
+    <text x="969" y="349" fill="#8C4F2B" font-size="17" font-family="Noto Serif SC, Songti SC, serif" font-weight="700">图片卡片生成</text>
+  </g>
+</svg>

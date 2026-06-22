@@ -147,3 +147,31 @@ Implementation direction for the current phase:
 - Treat upload, local parsing, route visualization, and route-card generation as P0 demo capabilities.
 
 If there is a tradeoff between polish breadth and completing the demo loop, complete the demo loop first.
+
+### 10. Business plan editing rule
+
+For `docs/business-plan-plus-scaffold.html` and any future BP-style documents in this repository:
+
+- Keep the distinction between `正文` and `脚手架/备注` strict.
+- Do not let meta-writing guidance leak into the outward-facing正文.
+
+Examples of text that should stay out of正文 and belong in notes/panels instead:
+
+- “这一章的重点是……”
+- “这里不再解释……”
+- “这句话适合放在……”
+- “这一页要回答的问题是……”
+- any other wording that explains how the document is being written rather than advancing the business narrative itself
+
+Before editing any BP正文, explicitly check whether the proposed change has this problem:
+
+1. Is this sentence describing the project?
+2. Or is it describing how the chapter/document is organized?
+
+If it is the second kind, move it to:
+
+- internal notes
+- caution panels
+- editing scaffolding
+
+Use正文 only for statements that an external reader should directly see as part of the business narrative.
