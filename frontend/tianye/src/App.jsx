@@ -29,6 +29,7 @@ const TAB_ITEMS = [
 ];
 
 const FILTERS = ["全部", "轻松", "中等", "环线"];
+const ENABLE_CUSTOM_ROUTE_PICKER = false;
 
 function featureLineBounds(feature) {
   const bounds = new maplibregl.LngLatBounds();
@@ -238,6 +239,7 @@ export default function App() {
   const [gpxStatus, setGpxStatus] = useState("导入 GPX 后会生成一条本地路线并进入当前列表。");
   const [sessionStatus, setSessionStatus] = useState("最近徒步记录会显示在这里。");
   const [isTracking, setIsTracking] = useState(false);
+  const [hasLocationFix, setHasLocationFix] = useState(false);
   const [isHiking, setIsHiking] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isStartingHike, setIsStartingHike] = useState(false);
@@ -365,6 +367,7 @@ export default function App() {
     walkedDistanceRef.current = 0;
     deviationCountRef.current = 0;
     offRouteRef.current = false;
+    setHasLocationFix(false);
     setSourceData("walked-route", EMPTY_LINE);
     setSourceData("raw-track", EMPTY_LINE);
     setWalkedDistance("0 m");
@@ -430,6 +433,33 @@ export default function App() {
 
   function closeRouteDetail() {
     setActiveDetailRoute(null);
+  }
+
+  function requestInitialLocation() {
+    if (!("geolocation" in navigator)) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coordinates = [position.coords.longitude, position.coords.latitude];
+        updateLivePosition(coordinates);
+        mapRef.current?.easeTo({
+          center: coordinates,
+          zoom: 13.5,
+          duration: 900,
+        });
+        setStatus("已定位到当前位置。请选择一条路线，或在允许时开始自定义路线。");
+      },
+      () => {
+        setStatus("未获取到当前位置。你可以先浏览路线，稍后再开始定位。");
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 60000,
+        timeout: 8000,
+      },
+    );
   }
 
   async function loadSavedPaths() {
@@ -510,6 +540,7 @@ export default function App() {
   function updateLivePosition(coordinates) {
     const [lng, lat] = coordinates;
     currentLocationRef.current = coordinates;
+    setHasLocationFix(true);
     setCurrentLocationLabel(`${lng.toFixed(5)}, ${lat.toFixed(5)}`);
     ensureUserMarker(coordinates);
     setSourceData("user-location", {
@@ -597,6 +628,10 @@ export default function App() {
   }
 
   async function handleMapClick(event) {
+    if (!ENABLE_CUSTOM_ROUTE_PICKER) {
+      return;
+    }
+
     if (routeInteractionLockedRef.current) {
       return;
     }
@@ -650,16 +685,25 @@ export default function App() {
         }
         updateLivePosition(coordinates);
         appendTrackPoint(coordinates);
+        setStatus("定位已开始。");
         if (activeTab === "navigate") {
           mapRef.current?.easeTo({ center: coordinates, duration: 600 });
         }
       },
-      (error) => setStatus(`定位失败：${error.message}`),
+      (error) => {
+        if (watchIdRef.current !== null) {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
+        setIsTracking(false);
+        setHasLocationFix(false);
+        setStatus(`定位失败：${error.message}`);
+      },
       { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 },
     );
     watchIdRef.current = watchId;
     setIsTracking(true);
-    setStatus("定位已开始。");
+    setStatus("正在获取定位...");
   }
 
   function stopTracking() {
@@ -668,6 +712,7 @@ export default function App() {
       watchIdRef.current = null;
     }
     setIsTracking(false);
+    setHasLocationFix(false);
     setStatus("定位已停止。");
   }
 
@@ -681,8 +726,13 @@ export default function App() {
       setStatus("开始徒步前请先开启定位。");
       return;
     }
+    if (!hasLocationFix || !currentLocationRef.current) {
+      setStatus("开始徒步前请先完成定位授权并获取当前位置。");
+      return;
+    }
     setIsStartingHike(true);
     try {
+      await ensureCsrfCookie();
       const payload = await postJson("/api/hike-sessions/start/", { route: routeFeature });
       activeSessionIdRef.current = payload.id;
       setIsHiking(true);
@@ -704,6 +754,7 @@ export default function App() {
     }
     setIsFinishingHike(true);
     try {
+      await ensureCsrfCookie();
       const routeMetrics = routeMetricsRef.current;
       const routeCoordinates = routeFeatureRef.current?.geometry?.coordinates || [];
       const lastPoint = rawTrackRef.current[rawTrackRef.current.length - 1];
@@ -911,7 +962,10 @@ export default function App() {
         map.on("moveend", loadScenicSpots);
 
         await Promise.all([ensureCsrfCookie(), loadSavedPaths(), loadRecentHikes(), loadScenicSpots()]);
-        selectRoute(mockRoutes[0], { statusText: "已载入默认示例路线。上拉可查看完整路线列表。", fitBounds: true });
+        routeInteractionLockedRef.current = false;
+        shouldFitRouteWithUserRef.current = false;
+        setStatus("首页已就绪。上拉查看路线列表，或先定位到你的位置。");
+        requestInitialLocation();
       } catch (error) {
         setStatus(`地图加载失败：${error.message}`);
       }
@@ -1074,7 +1128,12 @@ export default function App() {
               <button className="ghost-action" type="button" onClick={centerOnUser}><Icon name="map" className="button-icon" /><span>回到我</span></button>
             </div>
             <div className="navigate-actions">
-              <button className="primary-pill" type="button" onClick={startHike} disabled={isHiking || isStartingHike}>
+              <button
+                className="primary-pill"
+                type="button"
+                onClick={startHike}
+                disabled={isHiking || isStartingHike || !routeFeatureRef.current || !isTracking || !hasLocationFix}
+              >
                 <Icon name="play" className="button-icon" />
                 <span>{isStartingHike ? "启动中..." : "开始徒步"}</span>
               </button>
@@ -1185,21 +1244,15 @@ export default function App() {
 
       {!detailRoute && (
         <>
-          <section className={`mobile-sheet${isSheetExpanded ? " mobile-sheet-expanded" : " mobile-sheet-collapsed"}`}>
-            <button className="sheet-handle" type="button" onClick={() => setIsSheetExpanded((current) => !current)}>
-              <span />
-              <strong>{isSheetExpanded ? activeRouteName : "上拉查看路线"}</strong>
-            </button>
-            {isSheetExpanded ? renderSheetContent() : (
-              <div className="sheet-collapsed-summary">
-                <div>
-                  <p>{activeRouteName}</p>
-                  <strong>{routeDistance} · {routeDuration}</strong>
-                </div>
-                <button type="button" className="primary-pill" onClick={() => handleTabChange("navigate")}><Icon name="location" className="button-icon" /><span>导航</span></button>
-              </div>
-            )}
-          </section>
+          {isSheetExpanded && (
+            <section className="mobile-sheet mobile-sheet-expanded">
+              <button className="sheet-handle" type="button" onClick={() => setIsSheetExpanded(false)}>
+                <span />
+                <strong>{activeRouteName}</strong>
+              </button>
+              {renderSheetContent()}
+            </section>
+          )}
 
           <nav className="bottom-nav" aria-label="主导航">
             {TAB_ITEMS.map((item) => (

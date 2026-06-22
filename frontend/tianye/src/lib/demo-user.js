@@ -7,8 +7,8 @@ const DEFAULT_USERS = [
     homeCity: "Beijing",
   },
   {
-    id: "demo-lin",
-    name: "Lin",
+    id: "demo-tiantian",
+    name: "Tiantian",
     homeCity: "Haidian",
   },
 ];

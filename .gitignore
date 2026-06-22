@@ -1,2 +1,3 @@
 frontend/tianye/node_modules/
 frontend/tianye/dist/
+db.sqlite3

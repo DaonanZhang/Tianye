@@ -274,6 +274,10 @@ button { appearance: none; }
   background: #f5f7f3;
   padding: 16px;
 }
+
+.user-list {
+  margin-bottom: 18px;
+}
 .session-card h3 { margin: 0 0 6px; font-size: 1rem; }
 .sheet-collapsed-summary {
   display: flex;

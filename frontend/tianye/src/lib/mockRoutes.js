@@ -1,7 +1,7 @@
 const RAW_ROUTES = [
   {
     id: "reservoir-loop",
-    name: "崇青水库环线",
+    name: "崇青水库漫步环线",
     titleNative: "崇青水库",
     location: "北京海淀",
     difficulty: "中等",
@@ -34,7 +34,7 @@ const RAW_ROUTES = [
   },
   {
     id: "fragrant-hills",
-    name: "香山山脊步道",
+    name: "香山山脊徒步线",
     titleNative: "香山山脊线",
     location: "北京香山",
     difficulty: "中等",
@@ -66,7 +66,7 @@ const RAW_ROUTES = [
   },
   {
     id: "olympic-park",
-    name: "奥森夜行路线",
+    name: "奥森夜游绿道线",
     titleNative: "奥森夜跑线",
     location: "北京朝阳",
     difficulty: "轻松",
